@@ -22,9 +22,49 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Map("/generateRoute", async context =>
+app.Map("/generateImages", async context =>
 {
     await Routes.Generation(context);
 });
+
+// app.Map("/connectWithMobile", async context =>
+// {
+//     await Routes.Connecting(context);
+// });
+//
+// app.Map("/addRouteToDbFromFront", async context =>
+// {
+//     await Routes.Adding(context);
+// });
+//
+// app.Map("/allRoutes", async context =>
+// {
+//     await Routes.Getting(context);
+// });
+//
+// app.Map("/editRoute", async context =>
+// {
+//     await Routes.Editing(context);
+// });
+//
+// app.Map("/deleteRoute", async context =>
+// {
+//     await Routes.Deleting(context);
+// });
+//
+// app.Map("/generateQR", async context =>
+// {
+//     await Routes.QrGenerating(context);
+// });
+//
+// app.Map("/register", async context =>
+// {
+//     await Routes.Registering(context);
+// });
+//
+// app.Map("/login", async context =>
+// {
+//     await Routes.Loging(context);
+// });
 
 app.Run();
