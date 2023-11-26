@@ -6,15 +6,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+// builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// if (app.Environment.IsDevelopment())
+// {
+//     app.UseSwagger();
+//     app.UseSwaggerUI();
+// }
 
 app.UseHttpsRedirection();
 
@@ -27,15 +27,15 @@ app.Map("/generateImages", async context =>
     await Routes.Generation(context);
 });
 
-// app.Map("/connectWithMobile", async context =>
-// {
-//     await Routes.Connecting(context);
-// });
-//
-// app.Map("/addRouteToDbFromFront", async context =>
-// {
-//     await Routes.Adding(context);
-// });
+app.Map("/connectWithMobile", async context =>
+{
+    await Routes.Connecting(context);
+});
+
+app.Map("/addRouteToDbFromFront", async context =>
+{
+    await Routes.Adding(context);
+});
 //
 // app.Map("/allRoutes", async context =>
 // {

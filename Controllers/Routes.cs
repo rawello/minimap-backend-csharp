@@ -9,7 +9,8 @@ public static class Routes
 {
     public static async Task Generation(HttpContext context)
     {
-        await using var db = new MySqlConnection("Server=localhost;Database=test;Uid=rawello;Pwd=rawello;");
+        // await using var db = new MySqlConnection("Server=localhost;Database=test;Uid=rawello;Pwd=rawello;");
+        await using var db = new MySqlConnection("Server=localhost;Database=test;Uid=root;Pwd=password;");
         await db.OpenAsync();
 
         context.Response.ContentType = "application/json";
@@ -31,7 +32,7 @@ public static class Routes
         var blob = await db.QueryFirstOrDefaultAsync<byte[]>("SELECT mapsZip FROM maps WHERE build = @build", new { build });
 
         if (blob != null) await File.WriteAllBytesAsync($"{folderPath}.zip", blob);
-        
+
         using (var archive = ZipFile.OpenRead($"{folderPath}.zip"))
         {
             foreach (var entry in archive.Entries)
@@ -39,8 +40,8 @@ public static class Routes
                 entry.ExtractToFile(Path.Combine(folderPath, entry.FullName), true);
             }
         }
-        
-        
+
+
         var folderPathTemp = folderPath;
         foreach (var f in Directory.GetFiles(folderPathTemp, "*", SearchOption.AllDirectories))
         {
@@ -64,7 +65,7 @@ public static class Routes
         {
             AStar.GenerateRoute(build, (rooms ?? throw new InvalidOperationException()).ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToArray()), destinationFrom, destinationTo, folderPathTemp);
         }
-        
+
         if (Directory.Exists(folderPath))
         {
             var files = Directory.GetFiles(folderPath);
@@ -78,52 +79,86 @@ public static class Routes
                 }
             }
         }
-        
+
         var jsonResponse = JsonConvert.SerializeObject(response);
-        
+
         await context.Response.WriteAsync(jsonResponse);
         Console.WriteLine(folderPath);
         Directory.Delete(folderPath, true);
         File.Delete($"{folderPath}.zip");
     }
-    
-    public static async Task Getting(HttpContext context)
-    {
-        
-    }
+
+    // public static async Task Getting(HttpContext context)
+    // {
+
+    // }
 
     public static async Task Adding(HttpContext context)
     {
-        
+        // await using var db = new MySqlConnection("Server=localhost;Database=test;Uid=rawello;Pwd=rawello;");
+        await using var db = new MySqlConnection("Server=localhost;Database=test;Uid=root;Pwd=password;");
+        await db.OpenAsync();
+
+        context.Response.ContentType = "application/json";
+        var response = new Dictionary<string, string>();
+
+        var rooms = context.Request.Form["rooms"];
+        Console.WriteLine(rooms);
+        var login = context.Request.Form["login"].ToString();
+        var build = context.Request.Form["build"].ToString();
+
+        var zipFile = context.Request.Form.Files["zipFile"];
+
+        byte[] zipData = new byte[zipFile.Length];
+        using (var stream = new MemoryStream())
+        {
+            await zipFile.CopyToAsync(stream);
+            zipData = stream.ToArray();
+        }
+
+        var test = await db.QueryFirstOrDefaultAsync<string>("INSERT INTO maps(mapsZip, rooms, login, build) VALUES(@zipData, @rooms, @login, @build)", new { zipData, rooms, login, build });
+
+        await context.Response.WriteAsync("400");
     }
-    
-    public static async Task Editing(HttpContext context)
-    {
-        
-    }
-    
-    public static async Task Deleting(HttpContext context)
-    {
-        
-    }
-    
+
     public static async Task Connecting(HttpContext context)
     {
-        
-    }
-    
-    public static async Task QrGenerating(HttpContext context)
-    {
-        
-    }
-    
-    public static async Task Loging(HttpContext context)
-    {
-        
-    }
-    
-    public static async Task Registering(HttpContext context)
-    {
-        
+        await using var db = new MySqlConnection("Server=localhost;Database=test;Uid=root;Pwd=password;");
+        await db.OpenAsync();
+
+        context.Response.ContentType = "application/json";
+        var response = new Dictionary<string, string>();
+
+        var build = context.Request.Form["build"].ToString();
+
+        var test = await db.QueryFirstOrDefaultAsync<string>("SELECT * FROM MAPS WHERE build = @build", new { build });
+
+        await context.Response.WriteAsync("");
     }
 }
+
+// public static async Task Editing(HttpContext context)
+// {
+
+// }
+
+// public static async Task Deleting(HttpContext context)
+// {
+
+// }
+
+// public static async Task QrGenerating(HttpContext context)
+// {
+
+// }
+
+// public static async Task Loging(HttpContext context)
+// {
+
+// }
+
+// public static async Task Registering(HttpContext context)
+// {
+
+// }
+//}

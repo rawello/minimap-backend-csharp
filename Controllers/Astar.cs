@@ -136,7 +136,7 @@ public class AStar
             }
         }
 
-        return null; // Path not found
+        return null;
     }
 
     private int CalculateH(int[] pos1, int[] pos2)
