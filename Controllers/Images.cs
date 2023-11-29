@@ -75,7 +75,7 @@ public class Images
             return null;
         }
     }
-    
+
     public static string ConvertPng2Svg(string fileName, string folderPath)
     {
         using (var file = File.OpenRead($"{fileName}"))

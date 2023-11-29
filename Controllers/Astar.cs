@@ -50,7 +50,7 @@ public class AStar
             }
 
             //----------------------------второй этаж---------------
-            
+
             var (matrix2, stairsX2, stairsY2) = AppendMatrix(folderPath, rooms[destinationTo][0], build);
             start = new[] { stairsX[temp], stairsY[temp] };
             end = new[] { rooms[destinationTo][2], rooms[destinationTo][1] };
@@ -92,7 +92,7 @@ public class AStar
             Console.WriteLine($"успешно, длина пути до точки {path.Count} шага");
         }
     }
-    
+
     public List<Node> Search(int[][] maze, int[] start, int[] end)
     {
         List<Node> openList = new List<Node>();
