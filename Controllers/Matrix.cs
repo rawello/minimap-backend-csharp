@@ -2,7 +2,7 @@
 
 public class Matrix
 {
-    public static void GetMinMax(List<int> arr,out int smallestNumber)//, out int biggestNumber)
+    public static void GetMinMax(List<int> arr, out int smallestNumber)//, out int biggestNumber)
     {
         int sN = arr[0];
         int bN = arr[0];
@@ -54,9 +54,9 @@ public class Matrix
                         {
                             return parsedInt;
                         }
-                        
+
                         return 0; // Here you might consider handling the non-integer case differently based on your specific requirements
-                        
+
                     }).ToArray();
                     matrix.Add(parsedLine);
                     for (int i = 0; i < parsedLine.Length; i++)
@@ -76,7 +76,7 @@ public class Matrix
             return (matrix.ToArray(), stairsX.ToArray(), stairsY.ToArray());
         }
     }
-    
+
     public static int[] RemoveDuplicateValues(int[] intArray)
     {
         return intArray.Distinct().ToArray();
