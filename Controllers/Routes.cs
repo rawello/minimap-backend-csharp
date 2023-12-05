@@ -134,36 +134,42 @@ public interface Routes
 
     public static async Task Adding(HttpContext context)
     {
-        try
+        await using var db = new MySqlConnection("Server=localhost;Database=test;Uid=root;Pwd=password;");
+        await db.OpenAsync();
+
+        context.Response.ContentType = "application/json";
+        var response = new Dictionary<string, string>();
+
+        using (var reader = new StreamReader(context.Request.Body))
         {
-            await using var db = new MySqlConnection("Server=localhost;Database=test;Uid=rawello;Pwd=rawello;");
-            //await using var db = new MySqlConnection("Server=localhost;Database=test;Uid=root;Pwd=password;");
-            await db.OpenAsync();
-
-            context.Response.ContentType = "application/json";
-            var response = new Dictionary<string, string>();
-
-            var rooms = context.Request.Form["rooms"];
-            Console.WriteLine(rooms);
-            var login = context.Request.Form["login"].ToString();
-            var build = context.Request.Form["build"].ToString();
-
-            var zipFile = context.Request.Form.Files["zipFile"];
-
-            byte[] zipData = new byte[zipFile.Length];
-            using (var stream = new MemoryStream())
+            try
             {
-                await zipFile.CopyToAsync(stream);
-                zipData = stream.ToArray();
+                var body = await reader.ReadToEndAsync();
+                var data = JsonConvert.DeserializeObject<Dictionary<string, object>>(body);
+
+                var build = data["build"];
+                var rooms = data["rooms"];
+                var login = data["login"];
+                var svg = data["svg"];
+                var obj = data["obj"];
+                var floors = data["floors"];
+
+                var test = await db.QueryFirstOrDefaultAsync<string>("INSERT INTO maps(svg, rooms, login, build, obj, floors) VALUES(@svg, @rooms, @login, @build, @obj, @floors)", new { svg, rooms, login, build, obj, floors });
+
+                if (test != null)
+                {
+                    await context.Response.WriteAsync("200");
+                }
+                else
+                {
+                    await context.Response.WriteAsync("400");
+                }
             }
-
-            await db.QueryFirstOrDefaultAsync<string>("INSERT INTO maps(mapsZip, rooms, login, build) VALUES(@zipData, @rooms, @login, @build)", new { zipData, rooms, login, build });
-
-            await context.Response.WriteAsync("200");
-        }
-        catch (Exception ex)
-        {
-            await context.Response.WriteAsync(ex.ToString());
+            catch (Exception ex)
+            {
+                await context.Response.WriteAsync(ex.Message);
+                throw;
+            }
         }
     }
 
@@ -175,6 +181,37 @@ public interface Routes
             //await using var db = new MySqlConnection("Server=localhost;Database=test;Uid=root;Pwd=password;");
             await db.OpenAsync();
 
+<<<<<<< HEAD
+            using (var reader = new StreamReader(context.Request.Body))
+            {
+                try
+                {
+                    var body = await reader.ReadToEndAsync();
+                    var data = JsonConvert.DeserializeObject<Dictionary<string, object>>(body);
+                    var folderPath = new Random().Next(1000000).ToString();
+                    Directory.CreateDirectory(folderPath);
+
+                    var build = data["build"];
+                    var test = await db.QueryFirstOrDefaultAsync<string>("SELECT rooms, FROM MAPS WHERE build = @build", new { build });
+                    for (var i = 0; i < test.Length; i++)
+                    {
+                        using (StreamWriter writer = new StreamWriter($"{folderPath}/{i}-{build}.svg"))
+                        {
+
+                        }
+
+                    }
+                    context.Response.ContentType = "application/json";
+                    var response = new Dictionary<string, string>();
+
+                    await context.Response.WriteAsync(JsonConvert.SerializeObject(response));
+                }
+                catch (Exception ex)
+                {
+                    await context.Response.WriteAsync(ex.Message);
+                    throw;
+                }
+=======
             context.Response.ContentType = "application/json";
             var response = new Dictionary<string, string[]>();
 
@@ -244,6 +281,7 @@ public interface Routes
         catch (Exception ex)
         {
             await context.Response.WriteAsync(ex.ToString());
+>>>>>>> 9446f5e383ffcaa673af4629488df1a70cc35d01
+            }
         }
-    }
 }
