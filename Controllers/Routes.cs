@@ -95,30 +95,43 @@ public static class Routes
 
     public static async Task Adding(HttpContext context)
     {
-        // await using var db = new MySqlConnection("Server=localhost;Database=test;Uid=rawello;Pwd=rawello;");
         await using var db = new MySqlConnection("Server=localhost;Database=test;Uid=root;Pwd=password;");
         await db.OpenAsync();
 
         context.Response.ContentType = "application/json";
         var response = new Dictionary<string, string>();
 
-        var rooms = context.Request.Form["rooms"];
-        Console.WriteLine(rooms);
-        var login = context.Request.Form["login"].ToString();
-        var build = context.Request.Form["build"].ToString();
-
-        var zipFile = context.Request.Form.Files["zipFile"];
-
-        byte[] zipData = new byte[zipFile.Length];
-        using (var stream = new MemoryStream())
+        using (var reader = new StreamReader(context.Request.Body))
         {
-            await zipFile.CopyToAsync(stream);
-            zipData = stream.ToArray();
+            try
+            {
+                var body = await reader.ReadToEndAsync();
+                var data = JsonConvert.DeserializeObject<Dictionary<string, object>>(body);
+
+                var build = data["build"];
+                var rooms = data["rooms"];
+                var login = data["login"];
+                var svg = data["svg"];
+                var obj = data["obj"];
+                var floors = data["floors"];
+
+                var test = await db.QueryFirstOrDefaultAsync<string>("INSERT INTO maps(svg, rooms, login, build, obj, floors) VALUES(@svg, @rooms, @login, @build, @obj, @floors)", new { svg, rooms, login, build, obj, floors });
+
+                if (test != null)
+                {
+                    await context.Response.WriteAsync("200");
+                }
+                else
+                {
+                    await context.Response.WriteAsync("400");
+                }
+            }
+            catch (Exception ex)
+            {
+                await context.Response.WriteAsync(ex.Message);
+                throw;
+            }
         }
-
-        var test = await db.QueryFirstOrDefaultAsync<string>("INSERT INTO maps(mapsZip, rooms, login, build) VALUES(@zipData, @rooms, @login, @build)", new { zipData, rooms, login, build });
-
-        await context.Response.WriteAsync("400");
     }
 
     public static async Task Connecting(HttpContext context)
@@ -126,14 +139,35 @@ public static class Routes
         await using var db = new MySqlConnection("Server=localhost;Database=test;Uid=root;Pwd=password;");
         await db.OpenAsync();
 
-        context.Response.ContentType = "application/json";
-        var response = new Dictionary<string, string>();
+        using (var reader = new StreamReader(context.Request.Body))
+        {
+            try
+            {
+                var body = await reader.ReadToEndAsync();
+                var data = JsonConvert.DeserializeObject<Dictionary<string, object>>(body);
+                var folderPath = new Random().Next(1000000).ToString();
+                Directory.CreateDirectory(folderPath);
 
-        var build = context.Request.Form["build"].ToString();
+                var build = data["build"];
+                var test = await db.QueryFirstOrDefaultAsync<string>("SELECT rooms, FROM MAPS WHERE build = @build", new { build });
+                for (var i = 0; i < test.Length; i++)
+                {
+                    using (StreamWriter writer = new StreamWriter($"{folderPath}/{i}-{build}.svg")){
+                        
+                    }
 
-        var test = await db.QueryFirstOrDefaultAsync<string>("SELECT * FROM MAPS WHERE build = @build", new { build });
+                }
+                context.Response.ContentType = "application/json";
+                var response = new Dictionary<string, string>();
 
-        await context.Response.WriteAsync("");
+                await context.Response.WriteAsync(JsonConvert.SerializeObject(response));
+            }
+            catch (Exception ex)
+            {
+                await context.Response.WriteAsync(ex.Message);
+                throw;
+            }
+        }
     }
 }
 

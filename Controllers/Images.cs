@@ -75,7 +75,7 @@ public class Images
             return null;
         }
     }
-    
+
     public static string ConvertPng2Svg(string fileName, string folderPath)
     {
         using (var file = File.OpenRead($"{fileName}"))
@@ -107,4 +107,17 @@ public class Images
             return res;
         }
     }
+    // public void Convert2Svg(string directory)
+    // {
+    //     var pngFiles = Directory.GetFiles(directory, "*.png");
+
+    //     foreach (var pngFile in pngFiles)
+    //     {
+    //     //var svgData = ImageToSvg(pngFile);
+
+    //         var svgFile = Path.ChangeExtension(pngFile, ".svg");
+
+    //         File.WriteAllText(svgFile, svgData);
+    //     }
+    // }
 }
