@@ -13,10 +13,6 @@ public class Matrix
             {
                 smallestNumber = element;
             }
-            // else if (element > bN)
-            // {
-            //     biggestNumber = element;
-            // }
         }
     }
 
@@ -55,7 +51,7 @@ public class Matrix
                             return parsedInt;
                         }
 
-                        return 0; // Here you might consider handling the non-integer case differently based on your specific requirements
+                        return 0;
 
                     }).ToArray();
                     matrix.Add(parsedLine);
